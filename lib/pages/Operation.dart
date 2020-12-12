@@ -31,6 +31,10 @@ class Operation extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.green.shade100,
+        appBar: AppBar(
+          backgroundColor: Colors.green,
+        ),
         body: OperationForm(),
         resizeToAvoidBottomPadding: true,
         resizeToAvoidBottomInset: true,

@@ -708,15 +708,17 @@ class _RoomState extends State<Room> {
                     );
                   });
 
-                  return Container(
+                  return room.data['state']=='Waiting'?Container(
+                    child: Center(
+                      child: Text(players.keys.toString().replaceAll('@gmail.com', '\n').replaceAll('(', '').replaceAll(')', '').replaceAll(',', '')),
+                    ),
+                  ):Container(
                       child: GridView.count(
-                        crossAxisCount: 2,
+                          crossAxisCount: 2,
                           shrinkWrap: true,
-                          children:
-                          playerDesk
+                          childAspectRatio: 1 / 1.4,
 
-                      )
-                  );
+                          children: playerDesk));
                 },
               ),
             ),

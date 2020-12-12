@@ -1179,7 +1179,11 @@ class _ShweShanState extends State<ShweShan> with TickerProviderStateMixin{
                     ));
                   });
 
-                  return Container(
+                  return room.data['state']=='Waiting'?Container(
+                    child: Center(
+                      child: Text(players.keys.toString().replaceAll('@gmail.com', '\n').replaceAll('(', '').replaceAll(')', '').replaceAll(',', '')),
+                    ),
+                  ):Container(
                       child: GridView.count(
                           crossAxisCount: 2,
                           shrinkWrap: true,

@@ -6,22 +6,21 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' as gmp;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:htd/Home.dart';
 import 'package:htd/YTP_IN_Detail.dart';
 import 'package:htd/pages/Operation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:htd/main.dart';
-import 'package:flutter_map_tappable_polyline/flutter_map_tappable_polyline.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'dart:math';
 import 'package:htd/globals.dart' as globals;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:latlong/latlong.dart';
 import 'dart:io';
+import 'dart:ui';
 import 'dart:async';
 import 'package:htd/YTP_IN.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:htd/YTP_IN_Edit.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -54,13 +53,15 @@ class _YTP_IN_DetailFormState extends State<YTP_IN_DetailForm> {
   QuerySnapshot dnsnqs;
   DocumentSnapshot ds;
   GeoPoint dnsnLatLong;
+  String _mapStyle;
   List<String> dnsnList = [];
   GeoPoint homeLatLong;
+  GoogleMapController _controller;
   List poleList=[];
   var fullImageName;
-  List<Marker> mapMarkers = [];
-  List<LatLng> polyLinePoints = [];
+  Set<Marker> mapMarkers = {};
   Widget dnsnMap;
+  List<LatLng> polyList = [];
 
   Future<String> uploadImageToCloud(var imageFile) async {
     var Rand1 = new Random().nextInt(999);
@@ -84,7 +85,34 @@ class _YTP_IN_DetailFormState extends State<YTP_IN_DetailForm> {
     return dowurl;
   }
 
+  Future<BitmapDescriptor> getIconForMap(var iconD,Color ck) async
+  {
+    var pictureRecorder; var canvas; var textPainter; var iconStr;
+    pictureRecorder = new PictureRecorder();
+    canvas = Canvas(pictureRecorder);
+    textPainter = TextPainter(textDirection: TextDirection.ltr);
+    iconStr = String.fromCharCode(iconD.codePoint);
+    textPainter.text = TextSpan(
+        text: iconStr,
+        style: TextStyle(
+          letterSpacing: 0.0,
+          fontSize: 60.0,
+          fontFamily: iconD.fontFamily,
+          color: ck,
+        )
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, Offset(0.0, 0.0));
+    final picture = pictureRecorder.endRecording();
+    final image = await picture.toImage(60, 60);
+    final bytes = await image.toByteData(format: ImageByteFormat.png);
+    return BitmapDescriptor.fromBytes(bytes.buffer.asUint8List());
+  }
+
   Future<void> getData() async {
+    rootBundle.loadString('assets/map_style.txt').then((string) {
+      _mapStyle = string;
+    });
     homelocation = widget.docID.data['homeLocation'];
     installDate = widget.docID.data['installationDate'];
     receivedDate = widget.docID.data['receivedDate'];
@@ -105,91 +133,111 @@ class _YTP_IN_DetailFormState extends State<YTP_IN_DetailForm> {
       dnsnLatLong = ds.data['latLong'];
       mapMarkers.add(
         Marker(
-          point: LatLng(dnsnLatLong.latitude, dnsnLatLong.longitude),
-          builder: (context) {
-            return Icon(
-              Icons.router,
-              color: Colors.greenAccent,
-            );
-          },
+          markerId: MarkerId(ds.documentID),
+          position: LatLng(dnsnLatLong.latitude,dnsnLatLong.longitude),
+          icon: await getIconForMap(Icons.router,Colors.green),
         ),
+      );
+      polyList.add(
+          LatLng(dnsnLatLong.latitude,dnsnLatLong.longitude)
       );
     }
     homeLatLong = widget.docID.data['homeLocation'];
-    mapMarkers.add(Marker(
-      point: LatLng(homeLatLong.latitude, homeLatLong.longitude),
-      builder: (context) {
-        return Icon(
-          Icons.home,
-          color: Colors.redAccent,
-        );
-      },
-    ));
+    mapMarkers.add(
+      Marker(
+        markerId: MarkerId(homeLatLong.toString()),
+        position: LatLng(homeLatLong.latitude,homeLatLong.longitude),
+        icon: await getIconForMap(Icons.home,Colors.red),
+      ),
+    );
 
-    polyLinePoints.add(LatLng(homeLatLong.latitude, homeLatLong.longitude));
-
-    poleList.forEach((element) {
+    poleList.forEach((element)async {
        GeoPoint poleLoc = element;
       // double lat = double.parse(element.toString().split(',')[0]);
       // double lng = double.parse(element.toString().split(',')[1]);
-      mapMarkers.add(Marker(
-        point: LatLng(poleLoc.latitude, poleLoc.longitude),
-        builder: (context) {
-          return Icon(
-            Icons.title,
-            color: Colors.blueGrey,
-          );
-        },
-      ));
-      polyLinePoints.add(
-        LatLng(poleLoc.latitude, poleLoc.longitude),
+       mapMarkers.add(
+         Marker(
+             markerId: MarkerId(element.toString()),
+           position: LatLng(poleLoc.latitude,poleLoc.longitude),
+           icon: await getIconForMap(Icons.title,Colors.black),
+       ),
       );
+       polyList.add(
+           LatLng(poleLoc.latitude,poleLoc.longitude)
+       );
     }
     );
+    polyList.add(
+        LatLng(homeLatLong.latitude,homeLatLong.longitude)
+    );
 
-    polyLinePoints.add(LatLng(dnsnLatLong.latitude, dnsnLatLong.longitude));
     setState(() {
+      // dnsnMap = new Container(
+      //   height: 250,
+      //   width: 300,
+      //   child: FlutterMap(
+      //     options: new MapOptions(
+      //       bounds: LatLngBounds(
+      //           LatLng(homeLatLong.latitude, homeLatLong.longitude),
+      //           LatLng(
+      //               dnsnLatLong.latitude, dnsnLatLong.longitude)),
+      //       zoom: 15.0,
+      //       interactive: true,
+      //       maxZoom: 100,
+      //     ),
+      //     layers: [
+      //       TappablePolylineLayerOptions(
+      //         //Will only render visible polylines, increasing performance
+      //           polylineCulling: true,
+      //           polylines: [
+      //             TaggedPolyline(
+      //               tag: "My Polyline",
+      //               color: Colors.black,
+      //               isDotted: true,
+      //               strokeWidth: 4.0,
+      //               //  An optional tag to distinguish polylines in callback
+      //               points:polyLinePoints
+      //               //...all other Polyline options
+      //             ),
+      //           ],
+      //           onTap: (TaggedPolyline polyline) =>
+      //               print(polyline.tag)),
+      //       new TileLayerOptions(
+      //           backgroundColor: Colors.blue,
+      //           opacity: 0.5,
+      //           maxNativeZoom: 100,
+      //           urlTemplate:
+      //           "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      //           subdomains: ['a', 'b', 'c']),
+      //       new MarkerLayerOptions(
+      //         markers: mapMarkers,
+      //       ),
+      //     ],
+      //   ),
+      // );
       dnsnMap = new Container(
         height: 250,
         width: 300,
-        child: FlutterMap(
-          options: new MapOptions(
-            bounds: LatLngBounds(
-                LatLng(homeLatLong.latitude, homeLatLong.longitude),
-                LatLng(
-                    dnsnLatLong.latitude, dnsnLatLong.longitude)),
-            zoom: 15.0,
-            interactive: true,
-            maxZoom: 100,
-          ),
-          layers: [
-            TappablePolylineLayerOptions(
-              //Will only render visible polylines, increasing performance
-                polylineCulling: true,
-                polylines: [
-                  TaggedPolyline(
-                    tag: "My Polyline",
-                    color: Colors.black,
-                    isDotted: true,
-                    strokeWidth: 4.0,
-                    //  An optional tag to distinguish polylines in callback
-                    points:polyLinePoints
-                    //...all other Polyline options
-                  ),
-                ],
-                onTap: (TaggedPolyline polyline) =>
-                    print(polyline.tag)),
-            new TileLayerOptions(
-                backgroundColor: Colors.blue,
-                opacity: 0.5,
-                maxNativeZoom: 100,
-                urlTemplate:
-                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                subdomains: ['a', 'b', 'c']),
-            new MarkerLayerOptions(
-              markers: mapMarkers,
-            ),
-          ],
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black),
+        ),
+        child: GoogleMap(
+          initialCameraPosition: new CameraPosition(target: LatLng(dnsnLatLong.latitude,dnsnLatLong.longitude), zoom: 16.5,tilt: 89,),
+          markers: mapMarkers,
+            onMapCreated: (GoogleMapController controller) {
+              _controller = controller;
+              _controller.setMapStyle(_mapStyle);
+            },
+          polylines: {
+            Polyline(
+              polylineId: PolylineId(widget.docID.documentID),
+              points: polyList,
+              width: 2,
+              jointType: JointType.mitered,
+              zIndex: 3,
+              color: Colors.greenAccent
+
+          ),}
         ),
       );
     });
@@ -219,7 +267,7 @@ class _YTP_IN_DetailFormState extends State<YTP_IN_DetailForm> {
             onSelected: (value) async {
               switch (value) {
                 case 'process':
-                  Navigator.of(context,rootNavigator: true).pushReplacement(MaterialPageRoute(builder: (context) => YTP_IN_Edit(widget.docID),));
+                  Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => YTP_IN_Edit(widget.docID),));
                   break;
 
                 case 'makeFinish':

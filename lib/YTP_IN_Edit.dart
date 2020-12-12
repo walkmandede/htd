@@ -902,16 +902,10 @@ class _YTP_IN_EditFormState extends State<YTP_IN_EditForm> {
                                     'zone': txtZone.text,
                                     'latLong': currentLocation,
                                   });
-                                  DocumentSnapshot qs = await Firestore.instance.collection('YTP_Install').document(widget.docID.documentID).get();
-                                  Navigator.of(context,
-                                      rootNavigator: true)
-                                      .pop();
-                                  Navigator.of(context,
-                                      rootNavigator: true)
-                                      .pushReplacement(
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              YTP_IN_Edit(qs)));
+                                  DocumentSnapshot qs = await Firestore.instance.collection('YTP_Sites').document(widget.docID.documentID).get();
+                                  Navigator.of(context,rootNavigator: true).pop();
+                                  Navigator.of(context,nullOk: true,rootNavigator: true).pushReplacement(MaterialPageRoute(builder: (context) => YTP_IN_Edit(qs),));
+
                                 },
                               )
                             ],
@@ -960,10 +954,11 @@ class _YTP_IN_EditFormState extends State<YTP_IN_EditForm> {
                                       double.parse(
                                           txtNewPoleLoc.text.split(',')[1]))
                                 });
-                                DocumentSnapshot qs = await Firestore.instance.collection('YTP_Install').document(widget.docID.documentID).get();
+                                DocumentSnapshot qs = await Firestore.instance.collection('YTP_Sites').document(widget.docID.documentID).get();
+                                Navigator.of(context,rootNavigator: true).pop();
                                 Navigator.of(context,
                                     rootNavigator: true)
-                                    .pushReplacement(
+                                    .push(
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             YTP_IN_Edit(qs)));
