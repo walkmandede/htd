@@ -6,13 +6,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' as gmp;
 import 'package:htd/Home.dart';
 import 'package:htd/YTP_Email.dart';
 import 'package:htd/YTP_IN_Detail.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:htd/main.dart';
-import 'package:flutter_map_tappable_polyline/flutter_map_tappable_polyline.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'dart:math';
 import 'package:htd/globals.dart' as globals;
@@ -80,21 +78,23 @@ class _OperationFormState extends State<OperationForm> {
       DateTime date = installDate.toDate();
       tableRow.add(
           DataRow(
+            color: MaterialStateColor.resolveWith((states) => _site.data['type']=='Maintain'?Colors.green.shade200:Colors.green.shade400),
               cells: [
-        DataCell(Text(_site.documentID),
-        ),
-        DataCell(Text(_site.data['customerName']),
-        ),
-        DataCell(Text(receivedDate.toDate().toString().substring(5, 10)),
-        ),
-        DataCell(Text(installDate.toDate().toString().substring(5, 10)),
-        ),
-        DataCell(Text(_site.data['address']),
-        ),
-        DataCell(Text(_site.data['phone1']),
-        ),
-        DataCell(Text(_site.data['remark']),
-        ),
+                DataCell(
+                    _site.data['status']=='Remaining'?Icon(Icons.clear,):Icon(Icons.check),
+                ),
+                DataCell(
+                    !_site.data['ssr']?Icon(Icons.clear):Icon(Icons.check)
+                ),
+                DataCell(Text(_site.documentID,style: TextStyle(color: Colors.yellowAccent,fontWeight: FontWeight.w600)),onTap: () {
+                  Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => YTP_IN_Detail(_site),));
+                },),
+                DataCell(Text(_site.data['customerName'],),),
+                DataCell(Text(receivedDate.toDate().toString().substring(5, 10)),),
+                DataCell(Text(installDate.toDate().toString().substring(5, 10)),),
+                DataCell(Text(_site.data['address']),),
+                DataCell(Text(_site.data['phone1']),),
+                DataCell(Text(_site.data['remark']),),
       ]));
     }
     QuerySnapshot dnsnQS =
@@ -123,35 +123,20 @@ class _OperationFormState extends State<OperationForm> {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child:  DataTable(
+                    dataTextStyle:  TextStyle(fontSize: 14/MediaQuery.textScaleFactorOf(context),),
+                    showCheckboxColumn: true,
+                    headingTextStyle: TextStyle(fontSize: 15/MediaQuery.textScaleFactorOf(context), fontWeight: FontWeight.bold),
+                    headingRowColor: MaterialStateColor.resolveWith((states) => Colors.black),
                     columns: [
-                      DataColumn(label: Text(
-                          'ID / Ticket No',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
-                      )),
-                      DataColumn(label: Text(
-                          'Name',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
-                      )),
-                      DataColumn(label: Text(
-                          'Received',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
-                      )),
-                      DataColumn(label: Text(
-                          'Install',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
-                      )),
-                      DataColumn(label: Text(
-                          'Address',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
-                      )),
-                      DataColumn(label: Text(
-                          'Phone',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
-                      )),
-                      DataColumn(label: Text(
-                          'Remark',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
-                      )),
+                      DataColumn(label: Text('Finish?',)),
+                      DataColumn(label: Text('SSR?',)),
+                      DataColumn(label: Text('ID / Ticket No',)),
+                      DataColumn(label: Text('Name',)),
+                      DataColumn(label: Text('Received',)),
+                      DataColumn(label: Text('Install',)),
+                      DataColumn(label: Text('Address',)),
+                      DataColumn(label: Text('Phone',)),
+                      DataColumn(label: Text('Remark',)),
                     ],
                     rows: tableRow,
                   ),

@@ -5,7 +5,6 @@ import 'package:internet_speed_test/internet_speed_test.dart';
 import 'package:internet_speed_test/callbacks_enum.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:latlong/latlong.dart';
-import 'package:flutter_map_tappable_polyline/flutter_map_tappable_polyline.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart';

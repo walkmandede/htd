@@ -153,8 +153,6 @@ class _YTP_IN_DetailFormState extends State<YTP_IN_DetailForm> {
 
     poleList.forEach((element)async {
        GeoPoint poleLoc = element;
-      // double lat = double.parse(element.toString().split(',')[0]);
-      // double lng = double.parse(element.toString().split(',')[1]);
        mapMarkers.add(
          Marker(
              markerId: MarkerId(element.toString()),
@@ -167,54 +165,12 @@ class _YTP_IN_DetailFormState extends State<YTP_IN_DetailForm> {
        );
     }
     );
+
     polyList.add(
         LatLng(homeLatLong.latitude,homeLatLong.longitude)
     );
 
     setState(() {
-      // dnsnMap = new Container(
-      //   height: 250,
-      //   width: 300,
-      //   child: FlutterMap(
-      //     options: new MapOptions(
-      //       bounds: LatLngBounds(
-      //           LatLng(homeLatLong.latitude, homeLatLong.longitude),
-      //           LatLng(
-      //               dnsnLatLong.latitude, dnsnLatLong.longitude)),
-      //       zoom: 15.0,
-      //       interactive: true,
-      //       maxZoom: 100,
-      //     ),
-      //     layers: [
-      //       TappablePolylineLayerOptions(
-      //         //Will only render visible polylines, increasing performance
-      //           polylineCulling: true,
-      //           polylines: [
-      //             TaggedPolyline(
-      //               tag: "My Polyline",
-      //               color: Colors.black,
-      //               isDotted: true,
-      //               strokeWidth: 4.0,
-      //               //  An optional tag to distinguish polylines in callback
-      //               points:polyLinePoints
-      //               //...all other Polyline options
-      //             ),
-      //           ],
-      //           onTap: (TaggedPolyline polyline) =>
-      //               print(polyline.tag)),
-      //       new TileLayerOptions(
-      //           backgroundColor: Colors.blue,
-      //           opacity: 0.5,
-      //           maxNativeZoom: 100,
-      //           urlTemplate:
-      //           "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      //           subdomains: ['a', 'b', 'c']),
-      //       new MarkerLayerOptions(
-      //         markers: mapMarkers,
-      //       ),
-      //     ],
-      //   ),
-      // );
       dnsnMap = new Container(
         height: 250,
         width: 300,
@@ -222,25 +178,26 @@ class _YTP_IN_DetailFormState extends State<YTP_IN_DetailForm> {
           border: Border.all(color: Colors.black),
         ),
         child: GoogleMap(
-          initialCameraPosition: new CameraPosition(target: LatLng(dnsnLatLong.latitude,dnsnLatLong.longitude), zoom: 16.5,tilt: 89,),
-          markers: mapMarkers,
+            initialCameraPosition: new CameraPosition(target: LatLng(dnsnLatLong.latitude,dnsnLatLong.longitude), zoom: 16.5,tilt: 89,),
+            markers: mapMarkers,
             onMapCreated: (GoogleMapController controller) {
               _controller = controller;
               _controller.setMapStyle(_mapStyle);
             },
-          polylines: {
-            Polyline(
-              polylineId: PolylineId(widget.docID.documentID),
-              points: polyList,
-              width: 2,
-              jointType: JointType.mitered,
-              zIndex: 3,
-              color: Colors.greenAccent
-
-          ),}
+            polylines: {
+              Polyline(
+                  polylineId: PolylineId(widget.docID.documentID),
+                  points: polyList,
+                  width: 2,
+                  jointType: JointType.mitered,
+                  zIndex: 3,
+                  color: Colors.greenAccent,
+              ),}
         ),
       );
+
     });
+
   }
 
   void initState() {

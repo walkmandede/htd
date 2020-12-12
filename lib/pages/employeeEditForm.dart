@@ -36,6 +36,7 @@ class _EmployeeEditFormState extends State<EmployeeEditForm> {
   TextEditingController txtDesignation = new TextEditingController(text: '');
   TextEditingController txtEmail = new TextEditingController(text: '');
   TextEditingController txtPassword = new TextEditingController(text: '');
+  TextEditingController txtAddress = new TextEditingController(text: '');
   DateTime dateBirth,dateJoin;
   String Branch,paymentType;
   TextEditingController txtSalary = new TextEditingController(text: '');
@@ -52,6 +53,7 @@ class _EmployeeEditFormState extends State<EmployeeEditForm> {
     paymentType = myDs.data['PaymentType'];
     txtSalary.text = myDs.data['Salary'];
     timeSlot = myDs.data['TimeSlot'];
+    txtAddress.text = myDs.data['Address'];
 
     setState(() {
 
@@ -69,8 +71,10 @@ class _EmployeeEditFormState extends State<EmployeeEditForm> {
     return Scaffold(
       resizeToAvoidBottomPadding: true,
       resizeToAvoidBottomInset: true,
+      backgroundColor: Colors.green.shade100,
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: Colors.green,
         title: Text('Add Employee',style: TextStyle(color: Colors.white),),
         actions: [
           IconButton(
@@ -83,6 +87,7 @@ class _EmployeeEditFormState extends State<EmployeeEditForm> {
                   'DateOfJoin': dateJoin,
                   'Designation':txtDesignation.text,
                   'Branch':Branch,
+                  'Address':txtAddress.text,
                   'Email':txtEmail.text,
                   'Password':txtPassword.text,
                   'PaymentType':paymentType,
@@ -163,7 +168,13 @@ class _EmployeeEditFormState extends State<EmployeeEditForm> {
                     controller: txtDesignation,
                     decoration: InputDecoration(
                         labelText: 'Designation',
-                      helperText: 'eg : Employee, Manager'
+                        helperText: 'eg : Employee, Manager'
+                    ),
+                  ),
+                  TextField(
+                    controller: txtAddress,
+                    decoration: InputDecoration(
+                        labelText: 'Address',
                     ),
                   ),
                   DropdownButton(
@@ -221,7 +232,7 @@ class _EmployeeEditFormState extends State<EmployeeEditForm> {
                     children: [
                       TableRow(
                         decoration: BoxDecoration(
-                          color: Colors.lightBlueAccent
+                          color: Colors.green.shade500,
                         ),
                           children: [
                             Container(padding: EdgeInsets.all(10),child: Center(child: Text('Day'))),

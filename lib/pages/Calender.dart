@@ -102,7 +102,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     for (final _site in doc) {
       Timestamp installDate = _site.data['installationDate'];
       DateTime date = installDate.toDate();
-      sitesCard.add(Container(
+      sitesCard.add(
+          Container(
         margin: EdgeInsets.all(5),
         decoration: BoxDecoration(
             color: Colors.white,
@@ -190,7 +191,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         installCard.add(Container(
           margin: EdgeInsets.all(5),
           decoration: BoxDecoration(
-              border: Border.all(color: Colors.blue),
+              color: Colors.white,
+              border: Border.all(color: Colors.green,width: 2.5),
               borderRadius: BorderRadius.all(Radius.circular(15))),
           child: ExpansionTile(
             childrenPadding: EdgeInsets.all(5),
@@ -291,11 +293,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       }
       else if(_site.data['type']=='Maintain')
       {
-        maintainCard.add(Container(
-          margin: EdgeInsets.all(5),
-          decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
-              borderRadius: BorderRadius.all(Radius.circular(15))),
+        maintainCard.add(
+            Container(
+              margin: EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.green,width: 2.5),
+                  borderRadius: BorderRadius.all(Radius.circular(15))),
           child: ExpansionTile(
             childrenPadding: EdgeInsets.all(5),
             title: Row(

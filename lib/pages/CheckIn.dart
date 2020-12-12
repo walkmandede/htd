@@ -173,67 +173,55 @@ class _CheckInFormState extends State<CheckInForm> {
         future: alrdyLaded ? null : getData(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           return Scaffold(
+            backgroundColor: Colors.green.shade100,
             appBar: AppBar(
-              title: Text(today + ' Check-In'),
-            ),
-            body: Container(
-                child: ListView(
-              children: [
-                SizedBox(
-                  height: 20,
-                ),
+              backgroundColor: Colors.green,
+              title: Text(today,style: TextStyle(color: Colors.white,fontSize: 14/MediaQuery.textScaleFactorOf(context)),),
+              actions: [
                 alrdyChk == true
-                    ? Text(
-                        'Already Checked In',
-                        textAlign: TextAlign.center,
-                      )
+                    ? SizedBox()
                     : FlatButton(
-                        child: Container(
-                            padding: EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: Colors.lightBlueAccent),
-                            child: Text(
-                              'Check-In',
-                            )),
-                        onPressed: () async {
-                          Position p = await Geolocator().getCurrentPosition();
-                          Firestore.instance
-                              .collection('CheckIn')
-                              .document(today)
-                              .setData({
-                            user: {
-                              'what': 'Checking In',
-                              'when': DateTime.now(),
-                              'where': GeoPoint(p.latitude, p.longitude),
-                            }
-                          }, merge: true).then((value) {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => CheckIn()));
-                          });
-                          Firestore.instance
-                              .collection('employee')
-                              .document(user)
-                              .updateData({
-                            'attendance': FieldValue.arrayUnion([today])
-                          });
-                        },
-                      ),
-                Center(
-                    child: ds == null
-                        ? Text(
-                            'There is No Check-In Today!',
-                          )
-                        : GridView.count(
-                            crossAxisCount: 3,
-                            padding: EdgeInsets.all(10),
-                            shrinkWrap: true,
-                            children: allStaff,
-                          )),
+                  child: Container(
+                      child: Text(
+                        'Check-In',style: TextStyle(color: Colors.white,fontSize: 14/MediaQuery.textScaleFactorOf(context)),
+                      )),
+                  onPressed: () async {
+                    Position p = await Geolocator().getCurrentPosition();
+                    Firestore.instance
+                        .collection('CheckIn')
+                        .document(today)
+                        .setData({
+                      user: {
+                        'what': 'Checking In',
+                        'when': DateTime.now(),
+                        'where': GeoPoint(p.latitude, p.longitude),
+                      }
+                    }, merge: true).then((value) async{
+                      await Firestore.instance
+                          .collection('employee')
+                          .document(user)
+                          .updateData({
+                        'attendance': FieldValue.arrayUnion([today])
+                      });
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                              builder: (context) => CheckIn()));
+                    });
+
+                  },
+                ),
               ],
-            )),
+            ),
+            body:  !ds.exists
+                ? Text(
+              'No Check In Today',
+            ) :
+            GridView.count(
+              crossAxisCount: 3,
+              padding: EdgeInsets.all(10),
+              shrinkWrap: true,
+              children: allStaff,
+            )
           );
         });
   }

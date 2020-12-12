@@ -23,6 +23,7 @@ import 'package:htd/pages/TimeSheet.dart';
 import 'package:htd/pages/Staff.dart';
 import 'package:htd/pages/Operation.dart';
 import 'package:htd/pages/AllMap.dart';
+import 'package:htd/pages/employeeEditForm.dart';
 import 'package:htd/wifiCheck.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:htd/pages/Profile.dart';
@@ -39,7 +40,8 @@ import 'dart:ui' as ui;
 import 'package:table_calendar/table_calendar.dart';
 
 class Profile extends StatelessWidget {
-  const Profile();
+  final String user;
+  const Profile(this.user);
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,12 @@ class Profile extends StatelessWidget {
       textStyle: TextStyle(fontSize: 10/MediaQuery.textScaleFactorOf(context)),
       child: Scaffold(
         backgroundColor: Colors.green.shade100,
-        body: ProfileForm(),
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: Colors.green,
+          title: Text(this.user,style: TextStyle(color: Colors.white,fontSize: 14/MediaQuery.textScaleFactorOf(context)),),
+        ),
+        body: ProfileForm(this.user),
         resizeToAvoidBottomPadding: false,
 
       ),
@@ -56,7 +63,8 @@ class Profile extends StatelessWidget {
 }
 
 class ProfileForm extends StatefulWidget {
-  const ProfileForm();
+  final String user;
+  const ProfileForm(this.user);
 
   @override
   _ProfileFormState createState() => _ProfileFormState();
@@ -89,8 +97,12 @@ class _ProfileFormState extends State<ProfileForm> {
         '-' +
         tdy.year.toString();
 
+    setState(() {
+      currentUser = prefs.getString('currentUser');
+    });
+
     DocumentReference ds =
-    await Firestore.instance.collection('employee').document(prefs.getString('currentUser'));
+    await Firestore.instance.collection('employee').document(widget.user);
     ds.get().then((value) => this.setState(() {
       myProfile=value;
     }));
@@ -177,7 +189,7 @@ class _ProfileFormState extends State<ProfileForm> {
                                                 .pushReplacement(
                                                 MaterialPageRoute(
                                                     builder: (context) =>
-                                                        Profile()));
+                                                        Profile(widget.user)));
                                           },
                                         )
                                       ],
@@ -238,7 +250,7 @@ class _ProfileFormState extends State<ProfileForm> {
                                                     .pushReplacement(
                                                     MaterialPageRoute(
                                                         builder: (context) =>
-                                                            Profile()));
+                                                            Profile(widget.user)));
                                                 showDialog(context: context,
                                                     child: AlertDialog(
                                                       title: Text('Done!'),
@@ -345,7 +357,13 @@ class _ProfileFormState extends State<ProfileForm> {
                     Container(
                       child: FlatButton.icon(
                         icon: Icon(Icons.attach_money),
-                        label: Text('Pre-Salary'),
+                        label: Text('Edit Profile'),
+                        onPressed: () {
+                          if(widget.user==currentUser)
+                            {
+                              Navigator.of(context,rootNavigator: true).push(MaterialPageRoute(builder: (context) => EmployeeEditForm(widget.user),));
+                            }
+                        },
                       ),
                     ),
                     Container(
@@ -372,7 +390,7 @@ class _ProfileFormState extends State<ProfileForm> {
                           width: double.maxFinite,
                           height: 250,
                           padding: EdgeInsets.only(left: 20, right: 20),
-                          color: Colors.pinkAccent,
+                          color: Colors.green.shade300,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [

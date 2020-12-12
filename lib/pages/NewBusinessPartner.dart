@@ -113,9 +113,10 @@ class _NewBusinessPartnerState extends State<NewBusinessPartner> {
     return Scaffold(
       resizeToAvoidBottomPadding: true,
       resizeToAvoidBottomInset: true,
-      backgroundColor: Colors.lightBlue.shade100,
+      backgroundColor: Colors.green.shade100,
       appBar: AppBar(
         title: Text('New Business Partner Form'),
+        backgroundColor: Colors.green,
         centerTitle: true,
         actions: [
           FlatButton(
@@ -313,8 +314,9 @@ class _NewBusinessPartnerState extends State<NewBusinessPartner> {
     return StatefulBuilder(builder: (context, StateSetter setState)
     {
       return Scaffold(
-        backgroundColor: Colors.lightBlue.shade100,
+        backgroundColor: Colors.green.shade100,
         appBar: AppBar(
+          backgroundColor: Colors.green,
           title: Text('New Contact Form'),
           centerTitle: true,
           actions: [
@@ -538,9 +540,10 @@ class _NewBusinessPartnerState extends State<NewBusinessPartner> {
     return StatefulBuilder(builder: (context, StateSetter setState)
     {
       return Scaffold(
-        backgroundColor: Colors.lightBlue.shade100,
+        backgroundColor: Colors.green.shade100,
         appBar: AppBar(
           title: Text('New Address Form'),
+          backgroundColor: Colors.green.shade100,
           centerTitle: true,
           actions: [
             FlatButton(

@@ -10,10 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' as gmp;
 import 'package:latlong/latlong.dart';
 import 'package:htd/globals.dart' as globals;
-import 'package:flutter_map_tappable_polyline/flutter_map_tappable_polyline.dart';
 import 'package:htd/dnsnMarkers.dart' as dnsnmarks;
 import 'dart:async';
 

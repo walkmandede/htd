@@ -86,7 +86,9 @@ class _YTP_IN_EditFormState extends State<YTP_IN_EditForm> {
   TextEditingController subZone = TextEditingController();
   TextEditingController dn = TextEditingController();
   TextEditingController sn = TextEditingController();
+  TextEditingController dnsnPorts = TextEditingController();
   TextEditingController port = TextEditingController();
+  TextEditingController dnsnLatlng = TextEditingController();
   TextEditingController customerType = TextEditingController();
   TextEditingController buildingType = TextEditingController();
   TextEditingController engrCmt = TextEditingController();
@@ -188,6 +190,8 @@ class _YTP_IN_EditFormState extends State<YTP_IN_EditForm> {
     customerName.text = widget.docID.data['customerName'];
     customerID.text = widget.docID.data['customerID'];
     remark.text = widget.docID.data['remark'];
+    Position currentLoc = await Geolocator().getCurrentPosition();
+    dnsnLatlng.text = currentLoc.latitude.toString()+','+currentLoc.longitude.toString();
     bandwidth.text = widget.docID.data['bandwidth'];
     address.text = widget.docID.data['address'];
     phone1.text = widget.docID.data['phone1'];
@@ -238,7 +242,7 @@ class _YTP_IN_EditFormState extends State<YTP_IN_EditForm> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([]);
-    return Container(
+    return !isLoaded?Container(child: Center(child: Text('Loading! Please Wait ...'),),):Container(
       decoration: BoxDecoration(
         color: Colors.green.shade100
       ),
@@ -673,246 +677,31 @@ class _YTP_IN_EditFormState extends State<YTP_IN_EditForm> {
                   SizedBox(
                     height: 10,
                   ),
-                  dnsnList.contains(
-                      dropZone + '-' + subZone.text+ '-' + dn.text + '-' + sn.text)
-                      ? Text(
-                    dropZone +
-                        '-' +
-                        subZone.text +
-                        '-' +
-                        dn.text +
-                        '-' +
-                        sn.text +
-                        ' exists in the map data.',
-                    style: TextStyle(color: Colors.green),
-                  )
-                      : FlatButton(
-                    child: Text(
-                      'No Dnsn Found! Tap Here to Create New One!',
-                      style: TextStyle(color: Colors.red),
+                  dnsnList.contains(dropZone + '-' + subZone.text+ '-' + dn.text + '-' + sn.text)
+                      ? Text(dropZone + '-' + subZone.text + '-' + dn.text + '-' + sn.text + ' exists in the map data.', style: TextStyle(color: Colors.green,fontSize: 14/MediaQuery.textScaleFactorOf(context)),):
+                  Text('No such dnsn in the map data.', style: TextStyle(color: Colors.red,fontSize: 14/MediaQuery.textScaleFactorOf(context))),
+                  dnsnList.contains(dropZone + '-' + subZone.text+ '-' + dn.text + '-' + sn.text)
+                      ?SizedBox()
+                      : TextField(
+                    controller: dnsnLatlng,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'DNSN Location',
                     ),
-                    onPressed: () async {
-                      TextEditingController txtSubZone =
-                      new TextEditingController(text: subZone.text);
-                      TextEditingController txtDN =
-                      new TextEditingController(text: dn.text);
-                      TextEditingController txtSN =
-                      new TextEditingController(text: sn.text);
-                      TextEditingController txtPorts =
-                      new TextEditingController();
-                      TextEditingController txtZone =
-                      new TextEditingController(text: dropZone);
-                      Geolocator gp = new Geolocator();
-                      Position gs = await gp.getCurrentPosition();
-                      GeoPoint currentLocation =
-                      GeoPoint(gs.latitude, gs.longitude);
-                      TextEditingController txtCurrentLoc =
-                      new TextEditingController(
-                          text: currentLocation.latitude
-                              .toString() +
-                              ',' +
-                              currentLocation.longitude
-                                  .toString());
-                      MapControllerImpl dnsnmpl =
-                      new MapControllerImpl();
-                      List<Marker> mkList = [
-                        Marker(
-                            point: LatLng(currentLocation.latitude,
-                                currentLocation.longitude),
-                            height: 50,
-                            width: 50,
-                            builder: (ctx) => Container(
-                              child: Icon(Icons.home),
-                            )),
-                      ];
-
-                      showDialog(
-                          context: context,
-                          child: AlertDialog(
-                            scrollable: true,
-                            title: Container(
-                              margin: EdgeInsets.all(30),
-                              child: Column(
-                                children: [
-                                  DropdownButton(
-                                    items: getZones(),
-                                    hint: Text(
-                                      'Choose Zone Here',
-                                      style: getTextStyle(context),
-                                    ),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        txtZone.text = value;
-                                      });
-                                    },
-                                  ),
-                                  TextField(
-                                    controller: txtZone,
-                                    readOnly: true,
-                                  ),
-                                  TextField(
-                                    controller: txtSubZone,
-                                    keyboardType:
-                                    TextInputType.number,
-                                    decoration: InputDecoration(
-                                        labelText: 'Sub Zone'),
-                                  ),
-                                  TextField(
-                                    controller: txtDN,
-                                    keyboardType:
-                                    TextInputType.number,
-                                    decoration: InputDecoration(
-                                        labelText: 'DN'),
-                                  ),
-                                  TextField(
-                                    controller: txtSN,
-                                    keyboardType:
-                                    TextInputType.number,
-                                    decoration: InputDecoration(
-                                        labelText: 'SN'),
-                                  ),
-                                  TextField(
-                                    controller: txtPorts,
-                                    keyboardType:
-                                    TextInputType.number,
-                                    decoration: InputDecoration(
-                                        labelText: 'Total Ports'),
-                                  ),
-                                  TextField(
-                                    controller: txtCurrentLoc,
-                                    keyboardType:
-                                    TextInputType.number,
-                                    decoration: InputDecoration(
-                                        labelText:
-                                        'Current Location'),
-                                    onSubmitted: (value) {
-                                      double lat = double.parse(
-                                          value.split(',')[0]);
-                                      double lng = double.parse(
-                                          value.split(',')[1]);
-                                      setState(() {
-                                        mkList.clear();
-                                        mkList.add(
-                                          Marker(
-                                              point:
-                                              LatLng(lat, lng),
-                                              height: 50,
-                                              width: 50,
-                                              builder: (ctx) =>
-                                                  Container(
-                                                    child: Icon(Icons
-                                                        .pin_drop),
-                                                  )),
-                                        );
-                                      });
-                                    },
-                                  ),
-                                  Center(
-                                    child: Container(
-                                      alignment: Alignment.center,
-                                      margin: EdgeInsets.symmetric(
-                                          vertical: 20),
-                                      width: 240,
-                                      height: 240,
-                                      color: Colors.blue,
-                                      child: FlutterMap(
-                                        options: new MapOptions(
-                                          onTap: (point) {
-                                            mkList.clear();
-                                            setState(() {
-                                              currentLocation =
-                                              new GeoPoint(
-                                                  point
-                                                      .latitude,
-                                                  point
-                                                      .longitude);
-                                              txtCurrentLoc
-                                                  .text = point
-                                                  .latitude
-                                                  .toString()
-                                                  .substring(
-                                                  0, 9) +
-                                                  ',' +
-                                                  point.longitude
-                                                      .toString()
-                                                      .substring(
-                                                      0, 9);
-                                              mkList.add(
-                                                Marker(
-                                                    point: point,
-                                                    height: 50,
-                                                    width: 50,
-                                                    builder: (ctx) =>
-                                                        Container(
-                                                          child: Icon(
-                                                              Icons
-                                                                  .pin_drop),
-                                                        )),
-                                              );
-                                            });
-                                          },
-                                          center: LatLng(
-                                              currentLocation
-                                                  .latitude,
-                                              currentLocation
-                                                  .longitude),
-                                          zoom: 16.0,
-                                          interactive: true,
-                                        ),
-                                        mapController: dnsnmpl,
-                                        layers: [
-                                          new TileLayerOptions(
-                                              backgroundColor:
-                                              Colors.blue,
-                                              opacity: 0.5,
-                                              maxNativeZoom: 40,
-                                              urlTemplate:
-                                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                                              subdomains: [
-                                                'a',
-                                                'b',
-                                                'c'
-                                              ]),
-                                          new MarkerLayerOptions(
-                                              markers: mkList),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              FlatButton(
-                                child: Text('Save'),
-                                onPressed: () async {
-                                  dnsnCr
-                                      .document(txtZone.text +
-                                      '-' +
-                                      txtSubZone.text +
-                                      '-' +
-                                      txtDN.text +
-                                      '-' +
-                                      txtSN.text)
-                                      .setData({
-                                    'dn': txtDN.text,
-                                    'sn': txtSN.text,
-                                    'subZone':txtSubZone.text,
-                                    'ports': txtPorts.text,
-                                    'zone': txtZone.text,
-                                    'latLong': currentLocation,
-                                  });
-                                  DocumentSnapshot qs = await Firestore.instance.collection('YTP_Sites').document(widget.docID.documentID).get();
-                                  Navigator.of(context,rootNavigator: true).pop();
-                                  Navigator.of(context,nullOk: true,rootNavigator: true).pushReplacement(MaterialPageRoute(builder: (context) => YTP_IN_Edit(qs),));
-
-                                },
-                              )
-                            ],
-                          ));
-                    },
                   ),
-
+                  SizedBox(
+                    height: 10,
+                  ),
+                  dnsnList.contains(dropZone + '-' + subZone.text+ '-' + dn.text + '-' + sn.text)
+                      ? SizedBox(
+                  )
+                      : TextField(
+                    controller: dnsnPorts,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Total Ports',
+                    ),
+                  ),
                   SizedBox(
                     height: 10,
                   ),
@@ -1016,14 +805,7 @@ class _YTP_IN_EditFormState extends State<YTP_IN_EditForm> {
                     ),
                     onPressed: () async {
                       final prefs = await SharedPreferences.getInstance();
-                      DocumentSnapshot ds = await Firestore.instance.collection('DNSN').document(dropZone + '-' + subZone.text + '-' + dn.text + '-' + sn.text).get();
-                      ds.reference.setData(
-                        {
-                          'port' :{
-                            port.text : customerID.text,
-                          }
-                        },merge: true
-                      );
+
                       Firestore.instance.collection('activities').add({
                         'what': '${widget.docID.data['customerID']} Edit',
                         'when': DateTime.now().toString(),
@@ -1035,6 +817,24 @@ class _YTP_IN_EditFormState extends State<YTP_IN_EditForm> {
                             title: Text('Wait'),
                             content: Text('Data are uploading'),
                           ));
+                      dnsnList.contains(dropZone + '-' + subZone.text+ '-' + dn.text + '-' + sn.text)?null:
+                      await Firestore.instance.collection('DNSN').document(dropZone + '-' + subZone.text+ '-' + dn.text + '-' + sn.text).setData(
+                        {
+                          'zone':dropZone,
+                          'subZone':subZone.text,
+                          'dn':dn.text,
+                          'sn':sn.text,
+                          'ports':dnsnPorts.text,
+                        }
+                      );
+                      DocumentSnapshot ds = await Firestore.instance.collection('DNSN').document(dropZone + '-' + subZone.text + '-' + dn.text + '-' + sn.text).get();
+                      ds.reference.setData(
+                          {
+                            'port' :{
+                              port.text : customerID.text,
+                            }
+                          },merge: true
+                      );
                       dnsnCr
                           .document(
                           dropZone + '-' + dn.text + '-' + sn.text)

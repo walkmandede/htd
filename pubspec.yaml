@@ -24,7 +24,6 @@ dependencies:
   url_launcher: ^5.5.0
   cached_network_image: ^2.3.1
   convex_bottom_bar: ^2.4.1
-  flutter_map: ^0.10.1+1
   latlong: ^0.6.1
   gpx: ^1.1.1
   flutter_phoenix: ^0.1.0
@@ -33,7 +32,6 @@ dependencies:
   flutter_map_marker_cluster: ^0.3.1
   firebase_database: ^3.1.6
   image_downloader: ^0.20.0
-  flutter_map_tappable_polyline: ^0.5.0
   table_calendar: ^2.3.0
   internet_speed_test: ^1.1.2+1
   connectivity: ^2.0.1

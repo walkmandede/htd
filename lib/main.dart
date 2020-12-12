@@ -52,6 +52,7 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:table_calendar/table_calendar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /*
 Theme colors for this app
@@ -202,6 +203,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   String currentUser = '';
   String today;
   DateTime tdy;
+  String currentVersion ='1.0.3';
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
@@ -277,10 +279,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         onWillPop: () async => false,
         child: BackdropScaffold(
           resizeToAvoidBottomInset: true,
-
           appBar: AppBar(
             backgroundColor: Colors.green,
             elevation: 0,
+            title: Text('Green Burma v($currentVersion)',style: TextStyle(color: Colors.white,fontWeight: FontWeight.w700,fontSize: 14/MediaQuery.textScaleFactorOf(context)),),
+            centerTitle: true,
             leading: BackdropToggleButton(
               icon: AnimatedIcons.close_menu,
             ),
@@ -328,11 +331,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   child: Center(
                     child: FlatButton(
                       child: Text('Profile',style: TextStyle(fontSize: 12/MediaQuery.textScaleFactorOf(context)),),
-                      onPressed: () {
+                      onPressed: () async{
+                        SharedPreferences sp = await SharedPreferences.getInstance();
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => Profile()));
+                                builder: (context) => Profile(sp.getString('currentUser'))));
                       },
                     ),
                   ),
@@ -655,6 +659,84 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               ],
             ),
           ),
+          Container(
+            margin: EdgeInsets.all(10),
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+                color: Colors.green.shade200,borderRadius: BorderRadius.all(Radius.circular(20))
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width*0.25,
+                  decoration: BoxDecoration(
+                      color: Colors.green.shade100,
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: Colors.black)
+                  ),
+                  child: Center(
+                    child: FlatButton(
+                      child: Text('Help',style: TextStyle(fontSize: 12/MediaQuery.textScaleFactorOf(context)),),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HelpPage()));
+                      },
+                    ),
+                  ),
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width*0.25,
+                  decoration: BoxDecoration(
+                      color: Colors.green.shade100,
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: Colors.black)
+                  ),
+                  child: Center(
+                    child: FlatButton(
+                      child: Text('Update',style: TextStyle(fontSize: 12/MediaQuery.textScaleFactorOf(context)),),
+                      onPressed: () async{
+                        DocumentSnapshot ds = await Firestore.instance.collection('AppUpdate').document('AppUpdate').get();
+                        String latestVersion  = ds.data['version'];
+                        showDialog(
+                          context: context,
+                          child: AlertDialog(
+                            title: latestVersion==currentVersion
+                            ?Text('Your App is latest version!',style: TextStyle(color: Colors.green,fontSize: 20/MediaQuery.textScaleFactorOf(context)),)
+                            :FlatButton(
+                              child: Text('Update Available! Click to download!',style: TextStyle(color: Colors.red,fontSize: 20/MediaQuery.textScaleFactorOf(context)),),
+                              onPressed: () async{
+                                await launch(ds.data['link']);
+                              },
+                            ),
+                          )
+                        );
+                      }
+                    ),
+                  ),
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width*0.25,
+                  decoration: BoxDecoration(
+                      color: Colors.green.shade100,
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      border: Border.all(color: Colors.black)
+                  ),
+                  child: Center(
+                    child: FlatButton(
+                      child: Text('Exit',style: TextStyle(fontSize: 12/MediaQuery.textScaleFactorOf(context)),),
+                      onPressed: () {
+
+                      },
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          SizedBox(height: 40,)
         ],
       ),
     );
